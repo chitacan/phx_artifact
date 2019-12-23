@@ -1,6 +1,6 @@
 defmodule PhxArtifactWeb.ApiController do
   use PhxArtifactWeb, :controller
-  alias PhxArtifactWeb.Endpoint
+  alias Kernel.CLI
 
   @moduledoc """
   Sit impedit est reiciendis omnis at? Explicabo nisi dolor illum nemo cumque? Iure nihil vitae laboriosam possimus suscipit tempora? Ullam quae quo laborum explicabo a. Officia illum veniam dolores iusto.

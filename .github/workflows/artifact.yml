@@ -37,4 +37,5 @@ jobs:
       - name: report
         run: |
           mix deps.get
+          mix credo --format flycheck --strict
           mix coveralls.github
