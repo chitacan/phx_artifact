@@ -1,0 +1,19 @@
+name: generate artifacts
+on: [push]
+
+jobs:
+  documentation:
+    name: generate ex_doc
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-elixir@v1.0.0
+        with:
+          otp-version: 22.1.7
+          elixir-version: 1.9.4
+      - name: genereate doc
+        run: |
+          mix deps.get
+          mix docs
+      - name: deploy to now
+        run: now --token ${{ secrets.NOW_TOKEN }} -n phx_artifact doc/
