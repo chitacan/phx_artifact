@@ -7,5 +7,7 @@ defmodule PhxArtifactWeb.Router do
 
   scope "/api", PhxArtifactWeb do
     pipe_through :api
+
+    get "/hello", ApiController, :hello
   end
 end
