@@ -17,3 +17,20 @@ jobs:
           mix docs
       - name: deploy to now
         run: now --token ${{ secrets.NOW_TOKEN }} -n phx_artifact doc/
+
+  coverage:
+    name: generate test coverage report
+    runs-on: ubuntu-latest
+    env:
+      MIX_ENV: test
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-elixir@v1.0.0
+        with:
+          otp-version: 22.1.7
+          elixir-version: 1.9.4
+      - name: report
+        run: |
+          mix deps.get
+          mix coveralls.github
