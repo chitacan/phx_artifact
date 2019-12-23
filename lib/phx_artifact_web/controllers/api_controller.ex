@@ -33,4 +33,8 @@ defmodule PhxArtifactWeb.ApiController do
   def world(conn, _) do
     json(conn, %{val: "world"})
   end
+
+  def more_hello(conn, _) do
+    json(conn, %{val: "more_ hello"})
+  end
 end
