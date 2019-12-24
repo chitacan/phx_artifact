@@ -30,10 +30,12 @@ defmodule PhxArtifactWeb.ApiController do
     json(conn, %{val: "hello"})
   end
 
+  @spec world(Plug.Conn.t(), atom()) :: atom()
   def world(conn, _) do
     json(conn, %{val: "world"})
   end
 
+  @spec more_hello(Plug.Conn.t(), atom()) :: atom()
   def more_hello(conn, _) do
     IO.inspect("more_hello")
     json(conn, %{val: "more_ hello"})
