@@ -53,8 +53,8 @@ jobs:
             | reviewdog -efm="%f:%l:%c: %t: %m" -efm="%f:%l: %t: %m" -name="credo" -reporter="github-pr-check" -level="warning"
       - name: run dialyzer and report
         run: |
-          mix dialyzer --format short \
-            | reviewdog -efm="%f:%l:%t %m" -name="dialyzer" -reporter="github-pr-check" -diff="git diff master"
+          mix dialyzer --format short 2>&1 \
+          | reviewdog -efm="%f:%l:%*[a-z|_] %m" -name="dialyzer" -reporter="github-pr-check" -diff="git diff master" -level="warning"
 
   coverage:
     name: generate test coverage report
