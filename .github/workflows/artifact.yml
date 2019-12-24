@@ -41,6 +41,12 @@ jobs:
           mix local.rebar --force
           mix local.hex --force
           mix deps.get
+      - run: mkdir -p priv/plts
+      - name: cache plt
+        uses: actions/cache@v1
+        with:
+          path: priv/plts
+          key: changer-plt-v1
       - name: run credo and report
         run: |
           mix credo suggest --strict --format=flycheck \
