@@ -54,7 +54,7 @@ jobs:
       - name: run dialyzer and report
         run: |
           mix dialyzer --format short --quiet \
-            | reviewdog -efm="%f:%l:%t %m" -name="dialyzer" -reporter="github-pr-check" -level="warning"
+            | reviewdog -efm="%f:%l:%t %m" -name="dialyzer" -reporter="github-pr-check" -diff="git diff master"
 
   coverage:
     name: generate test coverage report
