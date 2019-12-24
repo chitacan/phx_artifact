@@ -25,19 +25,26 @@ jobs:
   credo:
     name: run credo
     runs-on: ubuntu-latest
-    container:
-      image: elixir:1.9.1-slim
     steps:
+      - uses: actions/setup-elixir@v1.0.0
+        with:
+          otp-version: 22.1.7
+          elixir-version: 1.9.4
+      - name: setup reviewdog
+        run: |
+          mkdir -p $HOME/bin && curl -sfL https://raw.githubusercontent.com/reviewdog/reviewdog/master/install.sh| sh -s -- -b $HOME/bin
+          echo ::add-path::$HOME/bin
       - uses: actions/checkout@v1
       - run: |
           mix local.rebar --force
           mix local.hex --force
           mix deps.get
       - name: run credo and report
-        uses: red-shirts/reviewdog-action-credo@v1
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          reporter: github-pr-check
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mix credo suggest --strict --format=flycheck \
+            | reviewdog -efm="%f:%l:%c: %t: %m" -efm="%f:%l: %t: %m" -name="credo" -reporter="github-pr-check" -level="error"
 
   coverage:
     name: generate test coverage report
