@@ -1,5 +1,9 @@
 name: generate artifacts
-on: [push]
+on:
+  push:
+    branches:
+      - master
+  pull_request:
 
 jobs:
   documentation:
@@ -17,6 +21,40 @@ jobs:
           mix docs
       - name: deploy to now
         run: now --token ${{ secrets.NOW_TOKEN }} -n phx_artifact doc/
+
+  analysis:
+    name: run static analysis
+    runs-on: ubuntu-latest
+    env:
+      REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/setup-elixir@v1.0.0
+        with:
+          otp-version: 22.1.7
+          elixir-version: 1.9.4
+      - name: setup reviewdog
+        run: |
+          mkdir -p $HOME/bin && curl -sfL https://raw.githubusercontent.com/reviewdog/reviewdog/master/install.sh| sh -s -- -b $HOME/bin
+          echo ::add-path::$HOME/bin
+      - uses: actions/checkout@v1
+      - run: |
+          mix local.rebar --force
+          mix local.hex --force
+          mix deps.get
+      - run: mkdir -p priv/plts
+      - name: cache plt
+        uses: actions/cache@v1
+        with:
+          path: priv/plts
+          key: changer-plt-v1
+      - name: run credo and report
+        run: |
+          mix credo suggest --strict --format=flycheck \
+            | reviewdog -efm="%f:%l:%c: %t: %m" -efm="%f:%l: %t: %m" -name="credo" -reporter="github-pr-check" -level="warning"
+      - name: run dialyzer and report
+        run: |
+          mix dialyzer --format short 2>&1 \
+          | reviewdog -efm="%f:%l:%*[a-z|_] %m" -name="dialyzer" -reporter="github-pr-check" -diff="git diff master" -level="warning"
 
   coverage:
     name: generate test coverage report
