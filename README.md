@@ -8,4 +8,4 @@ generate & deploy various phoenix artifacts.
 * inline dialyzer report with [reviewdog](https://github.com/reviewdog/reviewdog)
 * db documentation with [SchemaCrawler](http://www.schemacrawler.com/)
 
-see [actions](https://github.com/chitacan/phx_artifact/actions) tab
+see [workflow](./.github/workflows/artifact.yml) file and [actions](https://github.com/chitacan/phx_artifact/actions) tab

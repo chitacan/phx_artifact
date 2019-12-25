@@ -7,23 +7,7 @@ on:
 
 jobs:
   documentation:
-    name: generate ex_doc
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-elixir@v1.0.0
-        with:
-          otp-version: 22.1.7
-          elixir-version: 1.9.4
-      - name: genereate doc
-        run: |
-          mix deps.get
-          mix docs
-      - name: deploy to now
-        run: now --token ${{ secrets.NOW_TOKEN }} -n phx_artifact doc/
-
-  database:
-    name: generate db documentation
+    name: generate ex_doc & db doc
     runs-on: ubuntu-latest
     services:
       pg:
@@ -36,23 +20,17 @@ jobs:
         with:
           otp-version: 22.1.7
           elixir-version: 1.9.4
-      - run: |
+      - name: genereate doc
+        run: |
           mix deps.get
           mix ecto.create
           mix ecto.migrate
-      - run: |
-          docker run -v `pwd`:/home/schcrwlr schemacrawler/schemacrawler \
-            /opt/schemacrawler/schemacrawler.sh \
-            --server=postgresql \
-            --host=pg \
-            --database=artifacts \
-            --user=postgres \
-            --password=postgres \
-            -c=schema \
-            --info-level=maximum \
-            --output-format=htmlx \
-            -o=diagram.html
-          ls -alh
+          mix docs
+      - name: run schemacrawler
+        run: |
+          docker run -v `pwd`/doc:/home/schcrwlr --network "${{ job.services.pg.network }}" --rm --user root schemacrawler/schemacrawler:v16.2.7 /opt/schemacrawler/schemacrawler.sh --server=postgresql --host=pg --database=artifacts --user=postgres --password=postgres -c=schema --info-level=maximum --output-format=htmlx -o=/home/schcrwlr/db.html
+      - name: deploy to now
+        run: now --token ${{ secrets.NOW_TOKEN }} -n phx_artifact doc/
 
   analysis:
     name: run static analysis
@@ -76,7 +54,7 @@ jobs:
         uses: actions/cache@v1
         with:
           path: priv/plts
-          key: changer-plt-v1
+          key: changer-plt-v1-${{ hashFiles('mix.lock') }}
       - name: run credo and report
         run: |
           mix credo suggest --strict --format=flycheck \
@@ -89,6 +67,11 @@ jobs:
   coverage:
     name: generate test coverage report
     runs-on: ubuntu-latest
+    services:
+      pg:
+        image: postgres:10.7
+        ports:
+          - 5432:5432
     env:
       MIX_ENV: test
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
