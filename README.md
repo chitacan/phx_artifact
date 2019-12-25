@@ -6,5 +6,6 @@ generate & deploy various phoenix artifacts.
 * coverage report with [excoveralls](https://github.com/parroty/excoveralls)
 * inline credo report with [reviewdog](https://github.com/reviewdog/reviewdog)
 * inline dialyzer report with [reviewdog](https://github.com/reviewdog/reviewdog)
+* db documentation with [SchemaCrawler](http://www.schemacrawler.com/)
 
 see [actions](https://github.com/chitacan/phx_artifact/actions) tab
