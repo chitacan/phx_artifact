@@ -41,7 +41,8 @@ jobs:
           mix ecto.create
           mix ecto.migrate
       - run: |
-          docker run -v `pwd`:/home/schcrwlr schemacrawler/schemacrawler /opt/schemacrawler/schemacrawler.sh --server=postgresql --host=pg --database=phx_artifact --user=postgres --password=postgres -c=schema --output-format=htmlx -o=diagram.html
+          docker run -v `pwd`:/home/schcrwlr schemacrawler/schemacrawler /opt/schemacrawler/schemacrawler.sh --server=postgresql --host=pg --database=phx_artifact --user=postgres --password=postgres -c=schema --info-level=maximum --output-format=htmlx -o=diagram.html
+          ls -alh
 
   analysis:
     name: run static analysis
