@@ -84,4 +84,6 @@ jobs:
       - name: report
         run: |
           mix deps.get
+          mix ecto.create
+          mix ecto.migrate
           mix coveralls.github
