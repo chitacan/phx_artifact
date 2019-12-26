@@ -30,7 +30,26 @@ jobs:
         run: |
           docker run -v `pwd`/doc:/home/schcrwlr --network "${{ job.services.pg.network }}" --rm --user root schemacrawler/schemacrawler:v16.2.7 /opt/schemacrawler/schemacrawler.sh --server=postgresql --host=pg --database=artifacts --user=postgres --password=postgres -c=schema --info-level=maximum --output-format=htmlx -o=/home/schcrwlr/db.html
       - name: deploy to now
-        run: now --token ${{ secrets.NOW_TOKEN }} -n phx_artifact doc/
+        id: deploy
+        run: |
+          now --token ${{ secrets.NOW_TOKEN }} -n phx_artifact doc/ | \
+          tail -n 1 | \
+          xargs -I {} echo "::set-output name=doc_url::{}"
+      - name: create deployment
+        id: deployment
+        run: |
+          curl -X "POST" "https://api.github.com/repos/chitacan/phx_artifact/deployments" \
+               -H 'Authorization: token ${{ secrets.GITHUB_TOKEN }}' \
+               -H 'Content-Type: application/json; charset=utf-8' \
+               -H 'Cookie: logged_in=no' \
+               -d '{"environment": "doc", "required_contexts": [], "auto_merge": false, "ref": "${{ github.head_ref || github.sha }}"}' | jq ".id" | xargs -I {} echo "::set-output name=id::{}"
+      - name: create deployment status
+        run: |
+          curl -X "POST" "https://api.github.com/repos/chitacan/phx_artifact/deployments/${{ steps.deployment.outputs.id }}/statuses" \
+               -H 'Authorization: token ${{ secrets.GITHUB_TOKEN }}' \
+               -H 'Content-Type: application/json; charset=utf-8' \
+               -H 'Cookie: logged_in=no' \
+               -d '{ "state": "success", "target_url": "${{ steps.deploy.outputs.doc_url }}", "description": "Module, API, DB documentation" }'
 
   analysis:
     name: run static analysis
