@@ -28,7 +28,21 @@ jobs:
           mix docs
       - name: run schemacrawler
         run: |
-          docker run -v `pwd`/doc:/home/schcrwlr --network "${{ job.services.pg.network }}" --rm --user root schemacrawler/schemacrawler:v16.2.7 /opt/schemacrawler/schemacrawler.sh --server=postgresql --host=pg --database=artifacts --user=postgres --password=postgres -c=schema --info-level=maximum --output-format=htmlx -o=/home/schcrwlr/db.html
+          docker run -v `pwd`/doc:/home/schcrwlr \
+            --network "${{ job.services.pg.network }}" \
+            --rm \
+            --user root \
+            schemacrawler/schemacrawler:v16.2.7 \
+            /opt/schemacrawler/schemacrawler.sh \
+            --server=postgresql \
+            --host=pg \
+            --database=artifacts \
+            --user=postgres \
+            --password=postgres \
+            -c=schema \
+            --info-level=maximum \
+            --output-format=htmlx \
+            -o=/home/schcrwlr/db.html
       - name: deploy to now
         id: deploy
         run: |
@@ -81,7 +95,7 @@ jobs:
       - name: run dialyzer and report
         run: |
           mix dialyzer --format short 2>&1 \
-          | reviewdog -efm="%f:%l:%*[a-z|_] %m" -name="dialyzer" -reporter="github-pr-check" -diff="git diff master" -level="warning"
+          | reviewdog -efm="%f:%l:%*[a-z|_] %m" -name="dialyzer" -reporter="github-pr-check" -diff="git diff ${{ github.base_ref || github.sha }}" -level="warning"
 
   coverage:
     name: generate test coverage report
