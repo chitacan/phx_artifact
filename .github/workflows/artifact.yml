@@ -54,7 +54,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const {id} = github.repos.createDeployment({
+            const {id} = await github.repos.createDeployment({
               owner: "chitacan",
               repo: "phx_artifact",
               ref: "${{ github.head_ref || github.sha }}",
@@ -62,7 +62,7 @@ jobs:
               required_contexts: [],
               auto_merge: false
             })
-            github.repos.createDeploymentStatus({
+            await github.repos.createDeploymentStatus({
               owner: "chitacan",
               repo: "phx_artifact",
               deployment_id: id,
