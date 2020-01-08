@@ -54,7 +54,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const {id} = await github.repos.createDeployment({
+            const {data: {id}} = await github.repos.createDeployment({
               owner: "chitacan",
               repo: "phx_artifact",
               ref: "${{ github.head_ref || github.sha }}",
