@@ -1,5 +1,7 @@
 # phx_artifact
 
+![](https://github.com/chitacan/phx_artifact/workflows/generate%20artifacts/badge.svg)
+
 Experimental repository to generate & deploy various elixir & phoenix artifacts with [github actions](https://github.com/features/actions).
 
 see [workflow](./.github/workflows/artifact.yml) file for detail.
