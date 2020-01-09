@@ -49,21 +49,27 @@ jobs:
           now --token ${{ secrets.NOW_TOKEN }} -n phx_artifact doc/ | \
           tail -n 1 | \
           xargs -I {} echo "::set-output name=doc_url::{}"
-      - name: create deployment
-        id: deployment
-        run: |
-          curl -X "POST" "https://api.github.com/repos/chitacan/phx_artifact/deployments" \
-               -H 'Authorization: token ${{ secrets.GITHUB_TOKEN }}' \
-               -H 'Content-Type: application/json; charset=utf-8' \
-               -H 'Cookie: logged_in=no' \
-               -d '{"environment": "doc", "required_contexts": [], "auto_merge": false, "ref": "${{ github.head_ref || github.sha }}"}' | jq ".id" | xargs -I {} echo "::set-output name=id::{}"
-      - name: create deployment status
-        run: |
-          curl -X "POST" "https://api.github.com/repos/chitacan/phx_artifact/deployments/${{ steps.deployment.outputs.id }}/statuses" \
-               -H 'Authorization: token ${{ secrets.GITHUB_TOKEN }}' \
-               -H 'Content-Type: application/json; charset=utf-8' \
-               -H 'Cookie: logged_in=no' \
-               -d '{ "state": "success", "target_url": "${{ steps.deploy.outputs.doc_url }}", "description": "Module, API, DB documentation" }'
+      - name: create deployment with github-script
+        uses: actions/github-script@0.3.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const {data: {id}} = await github.repos.createDeployment({
+              owner: "chitacan",
+              repo: "phx_artifact",
+              ref: "${{ github.head_ref || github.sha }}",
+              environment: "doc",
+              required_contexts: [],
+              auto_merge: false
+            })
+            await github.repos.createDeploymentStatus({
+              owner: "chitacan",
+              repo: "phx_artifact",
+              deployment_id: id,
+              state: "success",
+              target_url: "${{ steps.deploy.outputs.doc_url }}",
+              description: "Module, API, DB document"
+            })
 
   analysis:
     name: run static analysis
