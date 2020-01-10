@@ -17,6 +17,7 @@ defmodule PhxArtifact.MixProject do
       dialyzer: [
         plt_file: {:no_warn, "priv/plts/dialyzer.plt"}
       ],
+      source_url: "https://github.com/chitacan/phx_artifact",
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
       deps: deps()
